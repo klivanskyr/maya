@@ -123,14 +123,15 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         "Maya Commands\n\n"
-        "/help — Show this list\n"
-        "/memory — See what I remember about you\n"
-        "/forget [fact] — Delete a memory\n"
-        "/plan — View your plan and usage\n"
-        "/upgrade — Upgrade to Maya Plus\n"
-        "/stats — Your usage statistics\n"
-        "/export — Export your chat history (Plus)\n"
-        "/settings — Adjust preferences (Plus)\n\n"
+        "/help - Show this list\n"
+        "/memory - See what I remember about you\n"
+        "/forget [fact] - Delete a memory\n"
+        "/plan - View your plan and usage\n"
+        "/upgrade - See upgrade options\n"
+        "/stats - Your usage statistics\n"
+        "/export - Export your chat history (Pro/Elite)\n"
+        "/settings - Change AI model (Elite)\n\n"
+        "You can also send me photos, links, or ask me to set reminders.\n\n"
         "Or just send me a message — I'm always here to chat!"
     )
 
@@ -233,30 +234,52 @@ async def forget_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def upgrade_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = await get_or_create_user(update.effective_user)
 
-    if user.tier == "plus":
+    from app.config import TIERS
+    from app.stripe_billing import generate_checkout_token
+
+    current = TIERS.get(user.tier, TIERS["free"])
+
+    if user.tier == "elite":
         await update.message.reply_text(
-            "You're already on Maya Plus! Type /plan to see your usage."
+            "You're on Maya Elite — the top plan! Type /plan to see your usage."
         )
         return
 
-    from app.stripe_billing import generate_checkout_token
+    lines = ["Maya Plans\n"]
 
-    token = generate_checkout_token(user.id)
-    checkout_url = f"{settings.app_url}/checkout/{token}"
-    await update.message.reply_text(
-        "Maya Plus — $9/month\n\n"
-        "- Unlimited messages (you're currently limited to 15/day)\n"
-        "- Unlimited memory (currently limited to 25 facts)\n"
-        "- Access to Sonnet 4.6, a more capable AI model\n"
-        "- Full memory management\n"
-        "- Chat export\n\n"
-        f"Upgrade here: {checkout_url}\n\n"
-        "You'll be taken to a secure checkout page."
+    if user.tier == "free":
+        token_pro = generate_checkout_token(user.id, "pro")
+        pro_url = f"{settings.app_url}/checkout/{token_pro}"
+        lines.append(
+            "Pro - $10/month\n"
+            "- 50 messages/day (you have 15 now)\n"
+            "- 100 memories (you have 25 now)\n"
+            "- Chat export\n"
+            "- Overage: $0.05/msg after limit\n"
+            f"- Upgrade: {pro_url}\n"
+        )
+
+    token_elite = generate_checkout_token(user.id, "elite")
+    elite_url = f"{settings.app_url}/checkout/{token_elite}"
+    lines.append(
+        "Elite - $20/month\n"
+        "- 100 messages/day\n"
+        "- Unlimited memories\n"
+        "- Choose between Haiku 4.5 and Sonnet 4.6\n"
+        "- Chat export\n"
+        "- Overage: $0.05/msg after limit\n"
+        f"- Upgrade: {elite_url}"
     )
+
+    await update.message.reply_text("\n".join(lines))
 
 
 async def plan_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = await get_or_create_user(update.effective_user)
+
+    from app.config import TIERS
+
+    tier = TIERS.get(user.tier, TIERS["free"])
 
     async with async_session() as session:
         u = await session.get(User, user.id)
@@ -265,27 +288,28 @@ async def plan_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         )
         fact_count = fact_count_result.scalar() or 0
 
-    if u.tier == "plus":
-        model_name = "Sonnet 4.6" if u.preferred_model == "sonnet" else "Haiku 4.5"
-        text = (
-            "Your Plan: Maya Plus\n\n"
-            f"  Messages today: {u.messages_today} (unlimited)\n"
-            f"  Memory: {fact_count} facts (unlimited)\n"
-            f"  AI model: {model_name} (send /settings to switch)\n\n"
-            "Thanks for being a Plus member!"
-        )
-    else:
-        limit = settings.default_daily_messages
-        text = (
-            "Your Plan: Free\n\n"
-            f"  Messages today: {u.messages_today} / {limit}\n"
-            f"  Memory: {fact_count} / 25 facts\n"
-            "  AI model: Haiku 4.5\n"
-            "  Resets at: midnight UTC\n\n"
-            "Want unlimited everything? /upgrade"
-        )
+    model_name = "Sonnet 4.6" if u.preferred_model == "sonnet" else "Haiku 4.5"
+    fact_limit = "unlimited" if tier["max_facts"] > 9999 else str(tier["max_facts"])
 
-    await update.message.reply_text(text)
+    lines = [f"Your Plan: Maya {tier['label']}\n"]
+    lines.append(f"  Messages today: {u.messages_today} / {tier['daily_messages']}")
+    lines.append(f"  Memory: {fact_count} / {fact_limit} facts")
+    lines.append(f"  AI model: {model_name}")
+
+    if u.tier in ("pro", "elite"):
+        lines.append(f"  After limit: $0.05/message")
+
+    if u.tier == "elite":
+        lines.append(f"  Model selection: /settings to switch")
+
+    lines.append("  Resets at: midnight UTC")
+
+    if u.tier == "free":
+        lines.append("\nWant more? /upgrade")
+    elif u.tier == "pro":
+        lines.append("\nWant Sonnet + unlimited memory? /upgrade")
+
+    await update.message.reply_text("\n".join(lines))
 
 
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -328,8 +352,8 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 async def export_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = await get_or_create_user(update.effective_user)
 
-    if user.tier != "plus":
-        await update.message.reply_text("Chat export is a Plus feature. /upgrade to unlock it.")
+    if user.tier == "free":
+        await update.message.reply_text("Chat export is available on Pro and Elite. /upgrade to unlock it.")
         return
 
     async with async_session() as session:
@@ -361,9 +385,9 @@ async def export_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = await get_or_create_user(update.effective_user)
 
-    if user.tier != "plus":
+    if user.tier != "elite":
         await update.message.reply_text(
-            "Settings are available for Plus subscribers. /upgrade to unlock."
+            "Model selection is available for Elite subscribers. /upgrade to see options."
         )
         return
 
@@ -381,8 +405,8 @@ async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def setmodel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = await get_or_create_user(update.effective_user)
 
-    if user.tier != "plus":
-        await update.message.reply_text("Model selection is a Plus feature. /upgrade to unlock.")
+    if user.tier != "elite":
+        await update.message.reply_text("Model selection is an Elite feature. /upgrade to see options.")
         return
 
     choice = context.args[0].lower() if context.args else ""
@@ -530,16 +554,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     conversation = await get_or_create_conversation(user)
 
     # Check message quota
-    can_send, used, limit = await check_message_quota(user)
+    can_send, used, limit, is_overage = await check_message_quota(user)
     if not can_send:
         await update.message.reply_text(
             f"You've used all {limit} of your daily messages! "
             "Your limit resets at midnight UTC.\n\n"
-            "Want unlimited messages? Upgrade to Maya Plus for $9/month — "
-            "you also get better AI, unlimited memory, and more.\n\n"
-            "/upgrade to get started."
+            "Upgrade to keep messaging — Pro ($10/mo) or Elite ($20/mo) "
+            "let you keep going at $0.05/msg after the daily limit.\n\n"
+            "/upgrade to see options."
         )
         return
+
+    if is_overage and used == limit:
+        # First overage message of the day — let them know
+        await update.message.reply_text(
+            f"You've hit your {limit} message limit for today. "
+            "No worries — you can keep going at $0.05 per message. "
+            "I'll add it to your next bill."
+        )
 
     # Store the incoming message
     await store_message(

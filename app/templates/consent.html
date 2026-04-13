@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}SMS Consent — Maya{% endblock %}
+
+{% block content %}
+<section class="max-w-2xl mx-auto px-6 py-16">
+    <div class="bg-white rounded-2xl p-10 shadow-sm border border-muted/10 text-center">
+        <div class="w-16 h-16 bg-coral/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+        </div>
+
+        <h1 class="text-3xl font-extrabold mb-4">Text Maya to get started</h1>
+
+        <p class="text-lg text-muted mb-8">
+            Message Maya on Telegram to start chatting with your AI assistant.
+        </p>
+
+        <a href="https://t.me/MayaAIBot"
+           class="inline-block bg-coral text-white text-lg px-8 py-4 rounded-full font-semibold hover:bg-coral-dark transition mb-8">
+            Open Maya on Telegram
+        </a>
+
+        <div class="bg-cream rounded-xl p-6 text-left text-sm text-muted space-y-3 mt-4">
+            <p class="font-semibold text-charcoal">SMS Consent & Terms</p>
+            <p>By messaging Maya, you consent to receive AI-generated responses and notifications (including reminders you set) via Telegram. When SMS becomes available, messaging and data rates may apply.</p>
+            <p>You can stop receiving messages at any time by blocking the bot on Telegram or replying STOP when using SMS.</p>
+            <p>Message frequency varies based on your usage. Maya will not send unsolicited messages except for reminders you have set and subscription notifications.</p>
+            <p>Your data is handled according to our <a href="/privacy" class="text-teal underline">Privacy Policy</a>. We do not sell or share your personal information with third parties for marketing purposes.</p>
+            <p>By continuing, you agree to our <a href="/terms" class="text-teal underline">Terms of Service</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

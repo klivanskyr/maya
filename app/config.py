@@ -1,6 +1,35 @@
 from pydantic_settings import BaseSettings
 
 
+# Tier configuration
+TIERS = {
+    "free": {
+        "label": "Free",
+        "daily_messages": 15,
+        "max_facts": 25,
+        "models": ["haiku"],
+        "price": 0,
+    },
+    "pro": {
+        "label": "Pro",
+        "daily_messages": 50,
+        "max_facts": 100,
+        "models": ["haiku"],
+        "price": 10,
+    },
+    "elite": {
+        "label": "Elite",
+        "daily_messages": 100,
+        "max_facts": 999999,  # unlimited
+        "models": ["haiku", "sonnet"],
+        "price": 20,
+    },
+}
+
+# Overage rate after daily limit (per message)
+OVERAGE_RATE_CENTS = 5  # $0.05 per message over limit
+
+
 class Settings(BaseSettings):
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
@@ -14,7 +43,8 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_publishable_key: str = ""
     stripe_webhook_secret: str = ""
-    stripe_price_id_plus: str = ""
+    stripe_price_id_pro: str = ""
+    stripe_price_id_elite: str = ""
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./maya.db"
@@ -34,19 +64,19 @@ class Settings(BaseSettings):
         "3) set_reminder - set a timed reminder that you will send to the user later. "
         "You can also see and understand images/photos that users send you. "
         "The user can use these commands: "
-        "/memory — see what you remember about them, "
-        "/forget [fact] — delete a specific memory, "
-        "/plan — view their current plan and usage, "
-        "/upgrade — upgrade to Maya Plus ($9/mo for unlimited messages, unlimited memory, and Sonnet 4.6), "
-        "/stats — see their usage statistics, "
-        "/export — export chat history (Plus only), "
-        "/settings — change AI model (Plus only), "
-        "/help — see all commands. "
+        "/memory - see what you remember about them, "
+        "/forget [fact] - delete a specific memory, "
+        "/plan - view their current plan and usage, "
+        "/upgrade - see upgrade options (Pro $10/mo, Elite $20/mo), "
+        "/stats - see their usage statistics, "
+        "/export - export chat history (Pro and Elite), "
+        "/settings - change AI model (Elite only), "
+        "/help - see all commands. "
+        "Plans: Free (15 msgs/day, Haiku), Pro $10/mo (50 msgs/day, Haiku), "
+        "Elite $20/mo (100 msgs/day, Haiku + Sonnet, unlimited memory). "
+        "After hitting the daily limit, users can keep messaging at $0.05/message. "
         "If someone asks what you can do or how to use you, mention the relevant commands and capabilities naturally."
     )
-
-    # Quotas (message-based)
-    default_daily_messages: int = 15
 
     # Context
     max_context_tokens: int = 8192

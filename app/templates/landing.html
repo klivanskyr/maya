@@ -88,52 +88,83 @@
     <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Simple pricing</h2>
     <p class="text-muted text-center text-lg mb-12">Start free. Upgrade when you're ready.</p>
 
-    <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+    <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         <!-- Free -->
         <div class="bg-white rounded-2xl p-8 shadow-sm border border-muted/10">
             <h3 class="text-lg font-bold mb-1">Free</h3>
-            <div class="text-3xl font-extrabold mb-6">$0<span class="text-base font-normal text-muted">/month</span></div>
-            <ul class="space-y-3 text-muted mb-8">
+            <div class="text-3xl font-extrabold mb-6">$0<span class="text-base font-normal text-muted">/mo</span></div>
+            <ul class="space-y-3 text-muted mb-8 text-sm">
                 <li class="flex items-start gap-2">
-                    <span class="text-teal mt-0.5">&#10003;</span> 15 messages per day
+                    <span class="text-teal mt-0.5">&#10003;</span> 15 messages/day
                 </li>
                 <li class="flex items-start gap-2">
                     <span class="text-teal mt-0.5">&#10003;</span> 25 memories
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-teal mt-0.5">&#10003;</span> Haiku 4.5 AI model
+                    <span class="text-teal mt-0.5">&#10003;</span> Haiku 4.5 AI
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-teal mt-0.5">&#10003;</span> View & delete memories
+                    <span class="text-teal mt-0.5">&#10003;</span> Web search, images, links
                 </li>
             </ul>
             <a href="https://t.me/MayaAIBot"
-               class="block text-center py-3 rounded-full border-2 border-charcoal text-charcoal font-semibold hover:bg-charcoal hover:text-white transition">
+               class="block text-center py-3 rounded-full border-2 border-charcoal text-charcoal font-semibold hover:bg-charcoal hover:text-white transition text-sm">
                 Start Free
             </a>
         </div>
 
-        <!-- Plus -->
+        <!-- Pro -->
         <div class="bg-white rounded-2xl p-8 shadow-sm border-2 border-coral relative">
             <div class="absolute -top-3 left-8 bg-coral text-white text-xs font-bold px-3 py-1 rounded-full">POPULAR</div>
-            <h3 class="text-lg font-bold mb-1">Maya Plus</h3>
-            <div class="text-3xl font-extrabold mb-6">$9<span class="text-base font-normal text-muted">/month</span></div>
-            <ul class="space-y-3 text-muted mb-8">
+            <h3 class="text-lg font-bold mb-1">Pro</h3>
+            <div class="text-3xl font-extrabold mb-6">$10<span class="text-base font-normal text-muted">/mo</span></div>
+            <ul class="space-y-3 text-muted mb-8 text-sm">
                 <li class="flex items-start gap-2">
-                    <span class="text-coral mt-0.5">&#10003;</span> <strong class="text-charcoal">Unlimited</strong> messages
+                    <span class="text-coral mt-0.5">&#10003;</span> <strong class="text-charcoal">50</strong> messages/day
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-coral mt-0.5">&#10003;</span> <strong class="text-charcoal">Unlimited</strong> memories
+                    <span class="text-coral mt-0.5">&#10003;</span> <strong class="text-charcoal">100</strong> memories
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-coral mt-0.5">&#10003;</span> Haiku 4.5 + <strong class="text-charcoal">Sonnet 4.6</strong>
+                    <span class="text-coral mt-0.5">&#10003;</span> Haiku 4.5 AI
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-coral mt-0.5">&#10003;</span> Full memory management + export
+                    <span class="text-coral mt-0.5">&#10003;</span> Chat export + reminders
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-coral mt-0.5">&#10003;</span> $0.05/msg after limit
                 </li>
             </ul>
             <a href="https://t.me/MayaAIBot"
-               class="block text-center py-3 rounded-full bg-coral text-white font-semibold hover:bg-coral-dark transition">
+               class="block text-center py-3 rounded-full bg-coral text-white font-semibold hover:bg-coral-dark transition text-sm">
+                Start Free, Upgrade in Chat
+            </a>
+        </div>
+
+        <!-- Elite -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm border-2 border-teal relative">
+            <div class="absolute -top-3 left-8 bg-teal text-white text-xs font-bold px-3 py-1 rounded-full">BEST VALUE</div>
+            <h3 class="text-lg font-bold mb-1">Elite</h3>
+            <div class="text-3xl font-extrabold mb-6">$20<span class="text-base font-normal text-muted">/mo</span></div>
+            <ul class="space-y-3 text-muted mb-8 text-sm">
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> <strong class="text-charcoal">100</strong> messages/day
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> <strong class="text-charcoal">Unlimited</strong> memories
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> Haiku 4.5 <strong class="text-charcoal">+ Sonnet 4.6</strong>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> Choose your AI model
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> $0.05/msg after limit
+                </li>
+            </ul>
+            <a href="https://t.me/MayaAIBot"
+               class="block text-center py-3 rounded-full bg-teal text-white font-semibold hover:bg-teal-dark transition text-sm">
                 Start Free, Upgrade in Chat
             </a>
         </div>

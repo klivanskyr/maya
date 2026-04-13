@@ -20,44 +20,48 @@ stripe.api_key = settings.stripe_secret_key
 _CHECKOUT_TOKEN_TTL = 3600
 
 
-def generate_checkout_token(user_id: int) -> str:
-    """Generate a signed, time-limited checkout token for a user."""
+def generate_checkout_token(user_id: int, tier: str = "pro") -> str:
+    """Generate a signed, time-limited checkout token for a user and tier."""
     timestamp = int(time.time())
-    payload = f"{user_id}:{timestamp}"
+    payload = f"{user_id}:{tier}:{timestamp}"
     sig = hmac.new(
         settings.stripe_secret_key.encode(), payload.encode(), hashlib.sha256
     ).hexdigest()[:16]
-    return f"{user_id}-{timestamp}-{sig}"
+    return f"{user_id}-{tier}-{timestamp}-{sig}"
 
 
-def verify_checkout_token(token: str) -> int | None:
-    """Verify a checkout token and return the user_id, or None if invalid."""
+def verify_checkout_token(token: str) -> tuple[int, str] | None:
+    """Verify a checkout token and return (user_id, tier), or None if invalid."""
     try:
         parts = token.split("-")
-        if len(parts) != 3:
+        if len(parts) != 4:
             return None
         user_id = int(parts[0])
-        timestamp = int(parts[1])
-        sig = parts[2]
+        tier = parts[1]
+        timestamp = int(parts[2])
+        sig = parts[3]
+
+        if tier not in ("pro", "elite"):
+            return None
 
         # Check expiry
         if time.time() - timestamp > _CHECKOUT_TOKEN_TTL:
             return None
 
         # Verify signature
-        payload = f"{user_id}:{timestamp}"
+        payload = f"{user_id}:{tier}:{timestamp}"
         expected = hmac.new(
             settings.stripe_secret_key.encode(), payload.encode(), hashlib.sha256
         ).hexdigest()[:16]
         if not hmac.compare_digest(sig, expected):
             return None
 
-        return user_id
+        return user_id, tier
     except (ValueError, IndexError):
         return None
 
 
-async def create_checkout_session(user_id: int) -> str | None:
+async def create_checkout_session(user_id: int, tier: str = "pro") -> str | None:
     """Create a Stripe Checkout session and return the URL."""
     async with async_session() as session:
         user = await session.get(User, user_id)
@@ -86,17 +90,19 @@ async def create_checkout_session(user_id: int) -> str | None:
                 return None
 
     try:
+        price_id = settings.stripe_price_id_pro if tier == "pro" else settings.stripe_price_id_elite
         checkout_session = await asyncio.to_thread(
             stripe.checkout.Session.create,
             customer=customer_id,
             payment_method_types=["card"],
-            line_items=[{"price": settings.stripe_price_id_plus, "quantity": 1}],
+            line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
             success_url=f"{settings.app_url}/?upgraded=true",
             cancel_url=f"{settings.app_url}/pricing",
             metadata={
                 "user_id": str(user_id),
                 "telegram_id": str(telegram_id),
+                "tier": tier,
             },
         )
         return checkout_session.url
@@ -141,6 +147,10 @@ async def _handle_checkout_completed(session_data: dict) -> None:
     user_id = int(session_data.get("metadata", {}).get("user_id", 0))
     subscription_id = session_data.get("subscription")
     customer_id = session_data.get("customer")
+    tier = session_data.get("metadata", {}).get("tier", "pro")
+
+    if tier not in ("pro", "elite"):
+        tier = "pro"
 
     if not user_id or not subscription_id:
         logger.error(f"Missing data in checkout session: user_id={user_id}")
@@ -151,17 +161,17 @@ async def _handle_checkout_completed(session_data: dict) -> None:
         sub = await asyncio.to_thread(stripe.Subscription.retrieve, subscription_id)
     except stripe.error.StripeError as e:
         logger.error(f"Failed to retrieve subscription {subscription_id}: {e}")
-        # Still upgrade the user even if we can't get period details
         async with async_session() as db:
             user = await db.get(User, user_id)
             if user:
-                user.tier = "plus"
+                user.tier = tier
                 user.stripe_customer_id = customer_id
                 await db.commit()
+        from app.config import TIERS
+        label = TIERS[tier]["label"]
         await _send_telegram_message(
             user_id,
-            "Welcome to Maya Plus! You now have unlimited messages, "
-            "unlimited memory, and access to Sonnet 4.6. Enjoy!",
+            f"Welcome to Maya {label}! Your upgrade is active. Type /plan to see your new limits.",
         )
         return
 
@@ -171,7 +181,7 @@ async def _handle_checkout_completed(session_data: dict) -> None:
             logger.error(f"User {user_id} not found for checkout completion")
             return
 
-        user.tier = "plus"
+        user.tier = tier
         user.stripe_customer_id = customer_id
 
         # Create or update subscription record
@@ -199,12 +209,13 @@ async def _handle_checkout_completed(session_data: dict) -> None:
 
         await db.commit()
 
+    from app.config import TIERS
+    label = TIERS.get(tier, TIERS["pro"])["label"]
     await _send_telegram_message(
         user_id,
-        "Welcome to Maya Plus! You now have unlimited messages, "
-        "unlimited memory, and access to Sonnet 4.6. Enjoy!",
+        f"Welcome to Maya {label}! Your upgrade is active. Type /plan to see your new limits.",
     )
-    logger.info(f"User {user_id} upgraded to Plus")
+    logger.info(f"User {user_id} upgraded to {tier}")
 
 
 async def _handle_invoice_paid(invoice: dict) -> None:

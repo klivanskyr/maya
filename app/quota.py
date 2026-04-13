@@ -2,19 +2,22 @@ from datetime import date, datetime
 
 from sqlalchemy import select
 
-from app.config import settings
+from app.config import TIERS, settings
 from app.database import async_session
 from app.models import DailyUsage, User
 
 
-async def check_message_quota(user: User) -> tuple[bool, int, int]:
-    """Check if user has remaining message quota.
-    Returns (can_send, messages_used, message_limit).
-    Plus users always return True with limit=0 (unlimited)."""
-    if user.tier == "plus":
-        return True, user.messages_today, 0
+def get_tier_config(tier: str) -> dict:
+    """Get the config for a tier, defaulting to free."""
+    return TIERS.get(tier, TIERS["free"])
 
-    limit = settings.default_daily_messages
+
+async def check_message_quota(user: User) -> tuple[bool, int, int, bool]:
+    """Check if user has remaining message quota.
+    Returns (can_send, messages_used, message_limit, is_overage).
+    When over limit, can_send is True but is_overage is True (they pay per message)."""
+    tier = get_tier_config(user.tier)
+    limit = tier["daily_messages"]
 
     async with async_session() as session:
         u = await session.get(User, user.id)
@@ -26,7 +29,15 @@ async def check_message_quota(user: User) -> tuple[bool, int, int]:
             u.messages_reset_at = now
             await session.commit()
 
-        return u.messages_today < limit, u.messages_today, limit
+        if u.messages_today < limit:
+            return True, u.messages_today, limit, False
+
+        # Over limit — paid users can keep going (overage billing)
+        if u.tier in ("pro", "elite"):
+            return True, u.messages_today, limit, True
+
+        # Free users are hard-capped
+        return False, u.messages_today, limit, False
 
 
 async def increment_message_count(user_id: int, tokens: int = 0) -> None:
@@ -34,7 +45,6 @@ async def increment_message_count(user_id: int, tokens: int = 0) -> None:
     today = date.today()
 
     async with async_session() as session:
-        # Update user's fast counter
         u = await session.get(User, user_id)
         u.messages_today += 1
 

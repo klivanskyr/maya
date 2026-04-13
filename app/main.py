@@ -128,10 +128,11 @@ async def telegram_webhook(request: Request):
 
 @app.get("/checkout/{token}")
 async def checkout(token: str):
-    user_id = verify_checkout_token(token)
-    if user_id is None:
+    result = verify_checkout_token(token)
+    if result is None:
         return JSONResponse({"error": "Invalid or expired checkout link"}, status_code=400)
-    url = await create_checkout_session(user_id)
+    user_id, tier = result
+    url = await create_checkout_session(user_id, tier)
     if url:
         return RedirectResponse(url=url, status_code=303)
     return JSONResponse({"error": "Unable to create checkout session"}, status_code=500)
@@ -169,3 +170,8 @@ async def privacy_page(request: Request):
 @app.get("/terms", response_class=HTMLResponse)
 async def terms_page(request: Request):
     return templates.TemplateResponse(request, "terms.html")
+
+
+@app.get("/consent", response_class=HTMLResponse)
+async def consent_page(request: Request):
+    return templates.TemplateResponse(request, "consent.html")
