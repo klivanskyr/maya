@@ -105,8 +105,10 @@ async def assemble_context(user_id: int) -> tuple[str, list[dict]]:
 async def generate_response(
     user_id: int, user_message: str, model_key: str = "haiku"
 ) -> tuple[str, int, int, str]:
-    """Generate a response from Claude API.
+    """Generate a response from Claude API with tool use support.
     Returns (response_text, input_tokens, output_tokens, model_used)."""
+    from app.tools import TOOL_DEFINITIONS, execute_tool
+
     system_prompt, messages = await assemble_context(user_id)
 
     # Add the current message
@@ -117,18 +119,59 @@ async def generate_response(
 
     model = MODELS.get(model_key, MODELS["haiku"])
 
-    response = await client.messages.create(
-        model=model,
-        max_tokens=1024,
-        system=system_prompt,
-        messages=messages,
-    )
+    total_input_tokens = 0
+    total_output_tokens = 0
 
-    response_text = response.content[0].text
-    input_tokens = response.usage.input_tokens
-    output_tokens = response.usage.output_tokens
+    # Tool use loop — Claude may call tools, we execute and feed results back
+    max_tool_rounds = 3
+    for _ in range(max_tool_rounds):
+        response = await client.messages.create(
+            model=model,
+            max_tokens=1024,
+            system=system_prompt,
+            messages=messages,
+            tools=TOOL_DEFINITIONS,
+        )
 
-    return response_text, input_tokens, output_tokens, model_key
+        total_input_tokens += response.usage.input_tokens
+        total_output_tokens += response.usage.output_tokens
+
+        # Check if Claude wants to use a tool
+        if response.stop_reason == "tool_use":
+            # Extract tool calls and text from the response
+            tool_results = []
+            assistant_content = []
+
+            for block in response.content:
+                if block.type == "tool_use":
+                    assistant_content.append(block)
+                    # Execute the tool
+                    result = await execute_tool(block.name, block.input)
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": result,
+                    })
+                elif block.type == "text":
+                    assistant_content.append(block)
+
+            # Add assistant message with tool calls, then tool results
+            messages.append({"role": "assistant", "content": assistant_content})
+            messages.append({"role": "user", "content": tool_results})
+
+            # Continue the loop — Claude will process tool results
+            continue
+
+        # No tool use — we have the final response
+        break
+
+    # Extract final text response
+    response_text = ""
+    for block in response.content:
+        if hasattr(block, "text"):
+            response_text += block.text
+
+    return response_text, total_input_tokens, total_output_tokens, model_key
 
 
 def _fix_message_order(messages: list[dict]) -> list[dict]:

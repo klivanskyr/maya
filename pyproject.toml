@@ -16,6 +16,7 @@ dependencies = [
     "python-multipart>=0.0.18",
     "anthropic>=0.52",
     "stripe>=12",
+    "ddgs>=9",
 ]
 
 [project.optional-dependencies]
