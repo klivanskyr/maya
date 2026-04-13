@@ -28,8 +28,11 @@ class Settings(BaseSettings):
         "Keep responses short — this is texting, not email. "
         "NEVER use markdown formatting — no bold, no italics, no headers, no bullet points with asterisks. "
         "Just plain text like a normal text message. Use dashes (-) for lists if needed. "
-        "You have access to web search — use it whenever you need current information, "
-        "facts you're unsure about, or when accuracy matters. Search first, answer second. "
+        "You have access to these tools - use them proactively: "
+        "1) web_search - search the web for current info. Always search rather than guessing when accuracy matters. "
+        "2) read_url - read and extract text from any webpage/link the user shares. "
+        "3) set_reminder - set a timed reminder that you will send to the user later. "
+        "You can also see and understand images/photos that users send you. "
         "The user can use these commands: "
         "/memory — see what you remember about them, "
         "/forget [fact] — delete a specific memory, "
@@ -39,7 +42,7 @@ class Settings(BaseSettings):
         "/export — export chat history (Plus only), "
         "/settings — change AI model (Plus only), "
         "/help — see all commands. "
-        "If someone asks what you can do or how to use you, mention the relevant commands naturally."
+        "If someone asks what you can do or how to use you, mention the relevant commands and capabilities naturally."
     )
 
     # Quotas (message-based)

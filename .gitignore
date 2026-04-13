@@ -15,3 +15,5 @@ venv/
 .ruff_cache/
 .pytest_cache/
 company-build/
+.playwright-mcp/
+*.png

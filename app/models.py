@@ -102,6 +102,19 @@ class KeyFact(Base):
     user: Mapped["User"] = relationship(back_populates="key_facts")
 
 
+class Reminder(Base):
+    __tablename__ = "reminders"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    message: Mapped[str] = mapped_column(Text)
+    remind_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+    sent: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user: Mapped["User"] = relationship()
+
+
 class Subscription(Base):
     __tablename__ = "subscriptions"
 

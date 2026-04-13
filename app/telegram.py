@@ -401,6 +401,98 @@ async def setmodel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 # ─── Message handler ─────────────────────────────────────────────────
 
+async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle photos sent to Maya — use Claude's vision to analyze them."""
+    if not update.message or not update.message.photo:
+        return
+
+    user = await get_or_create_user(update.effective_user)
+
+    if not user.onboarding_complete:
+        _onboarding_users.add(user.telegram_id)
+        await update.message.reply_text("Hey! I'm Maya. What's your name?")
+        return
+
+    conversation = await get_or_create_conversation(user)
+
+    # Check quota
+    can_send, used, limit = await check_message_quota(user)
+    if not can_send:
+        await update.message.reply_text(
+            f"You've used all {limit} of your daily messages! "
+            "Your limit resets at midnight UTC.\n\n"
+            "/upgrade to get started."
+        )
+        return
+
+    # Get the largest photo version
+    photo = update.message.photo[-1]
+    file = await context.bot.get_file(photo.file_id)
+    photo_bytes = await file.download_as_bytearray()
+
+    # Caption or default prompt
+    caption = update.message.caption or ""
+
+    # Store a text representation of the message
+    stored_text = f"[Sent a photo]{': ' + caption if caption else ''}"
+    await store_message(
+        user=user,
+        conversation=conversation,
+        role="user",
+        content=stored_text,
+        telegram_message_id=update.message.message_id,
+    )
+
+    # Typing indicator
+    async def keep_typing():
+        try:
+            while True:
+                await update.message.chat.send_action(ChatAction.TYPING)
+                await asyncio.sleep(4)
+        except asyncio.CancelledError:
+            pass
+
+    typing_task = asyncio.create_task(keep_typing())
+
+    model_key = "haiku"
+    if user.tier == "plus" and user.preferred_model == "sonnet":
+        model_key = "sonnet"
+
+    try:
+        reply_text, input_tokens, output_tokens, model_used = await generate_response(
+            user.id,
+            caption,
+            model_key=model_key,
+            image_data=bytes(photo_bytes),
+            image_media_type="image/jpeg",
+        )
+    except Exception as e:
+        logger.error(f"Vision error for user {user.id}: {e}")
+        reply_text = "Sorry, I had trouble looking at that image. Try again in a moment."
+        input_tokens, output_tokens, model_used = 0, 0, None
+    finally:
+        typing_task.cancel()
+
+    total_tokens = input_tokens + output_tokens
+
+    await store_message(
+        user=user,
+        conversation=conversation,
+        role="assistant",
+        content=reply_text,
+        token_count=output_tokens,
+        model_used=model_used,
+    )
+    await increment_message_count(user.id, tokens=total_tokens)
+
+    await update.message.reply_text(reply_text)
+
+    try:
+        await compact_history(user.id)
+    except Exception as e:
+        logger.warning(f"Compaction failed for user {user.id}: {e}")
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.message or not update.message.text:
         return
@@ -537,6 +629,9 @@ def create_bot_app() -> Application:
     app.add_handler(CommandHandler("export", export_command))
     app.add_handler(CommandHandler("settings", settings_command))
     app.add_handler(CommandHandler("setmodel", setmodel_command))
+
+    # Photos
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
 
     # Regular messages
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))

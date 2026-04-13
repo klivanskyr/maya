@@ -103,16 +103,41 @@ async def assemble_context(user_id: int) -> tuple[str, list[dict]]:
 
 
 async def generate_response(
-    user_id: int, user_message: str, model_key: str = "haiku"
+    user_id: int,
+    user_message: str,
+    model_key: str = "haiku",
+    image_data: bytes | None = None,
+    image_media_type: str | None = None,
 ) -> tuple[str, int, int, str]:
     """Generate a response from Claude API with tool use support.
-    Returns (response_text, input_tokens, output_tokens, model_used)."""
-    from app.tools import TOOL_DEFINITIONS, execute_tool
+    Returns (response_text, input_tokens, output_tokens, model_used).
+    Optionally accepts image_data (bytes) for vision queries."""
+    from app.tools import TOOL_DEFINITIONS, execute_tool, set_current_user
+
+    set_current_user(user_id)
 
     system_prompt, messages = await assemble_context(user_id)
 
-    # Add the current message
-    messages.append({"role": "user", "content": user_message})
+    # Build the user message content (text, or text + image)
+    if image_data and image_media_type:
+        import base64
+
+        user_content = []
+        user_content.append({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": image_media_type,
+                "data": base64.b64encode(image_data).decode("utf-8"),
+            },
+        })
+        user_content.append({
+            "type": "text",
+            "text": user_message or "What's in this image?",
+        })
+        messages.append({"role": "user", "content": user_content})
+    else:
+        messages.append({"role": "user", "content": user_message})
 
     # Ensure messages alternate properly (Claude requires this)
     messages = _fix_message_order(messages)
