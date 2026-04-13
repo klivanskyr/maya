@@ -122,17 +122,16 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "*Maya Commands*\n\n"
+        "Maya Commands\n\n"
         "/help — Show this list\n"
         "/memory — See what I remember about you\n"
-        "/forget \\[fact\\] — Delete a memory\n"
+        "/forget [fact] — Delete a memory\n"
         "/plan — View your plan and usage\n"
         "/upgrade — Upgrade to Maya Plus\n"
         "/stats — Your usage statistics\n"
-        "/export — Export your chat history \\(Plus\\)\n"
-        "/settings — Adjust preferences \\(Plus\\)\n\n"
-        "Or just send me a message — I'm always here to chat\\!",
-        parse_mode="MarkdownV2",
+        "/export — Export your chat history (Plus)\n"
+        "/settings — Adjust preferences (Plus)\n\n"
+        "Or just send me a message — I'm always here to chat!"
     )
 
 
@@ -245,15 +244,14 @@ async def upgrade_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     token = generate_checkout_token(user.id)
     checkout_url = f"{settings.app_url}/checkout/{token}"
     await update.message.reply_text(
-        "✨ *Maya Plus — \\$9/month*\n\n"
-        "• Unlimited messages \\(you're currently limited to 15/day\\)\n"
-        "• Unlimited memory \\(currently limited to 25 facts\\)\n"
-        "• Access to Sonnet 4\\.6, a more capable AI model\n"
-        "• Full memory management\n"
-        "• Chat export\n\n"
-        f"[Upgrade Now]({checkout_url})\n\n"
-        "You'll be taken to a secure checkout page\\.",
-        parse_mode="MarkdownV2",
+        "Maya Plus — $9/month\n\n"
+        "- Unlimited messages (you're currently limited to 15/day)\n"
+        "- Unlimited memory (currently limited to 25 facts)\n"
+        "- Access to Sonnet 4.6, a more capable AI model\n"
+        "- Full memory management\n"
+        "- Chat export\n\n"
+        f"Upgrade here: {checkout_url}\n\n"
+        "You'll be taken to a secure checkout page."
     )
 
 

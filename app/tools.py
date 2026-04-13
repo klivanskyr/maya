@@ -50,7 +50,7 @@ async def web_search(query: str, max_results: int = 5) -> str:
             title = r.get("title", "")
             body = r.get("body", "")
             href = r.get("href", "")
-            formatted.append(f"**{title}**\n{body}\nSource: {href}")
+            formatted.append(f"{title}\n{body}\nSource: {href}")
 
         return "\n\n".join(formatted)
 
