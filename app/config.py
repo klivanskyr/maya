@@ -5,23 +5,20 @@ from pydantic_settings import BaseSettings
 TIERS = {
     "free": {
         "label": "Free",
-        "daily_messages": 15,
+        "daily_messages": 5,
         "max_facts": 25,
-        "models": ["haiku"],
         "price": 0,
     },
     "pro": {
         "label": "Pro",
         "daily_messages": 50,
         "max_facts": 100,
-        "models": ["haiku"],
         "price": 10,
     },
     "elite": {
         "label": "Elite",
         "daily_messages": 100,
         "max_facts": 999999,  # unlimited
-        "models": ["haiku", "sonnet"],
         "price": 20,
     },
 }
@@ -70,11 +67,12 @@ class Settings(BaseSettings):
         "/upgrade - see upgrade options (Pro $10/mo, Elite $20/mo), "
         "/stats - see their usage statistics, "
         "/export - export chat history (Pro and Elite), "
-        "/settings - change AI model (Elite only), "
         "/help - see all commands. "
-        "Plans: Free (15 msgs/day, Haiku), Pro $10/mo (50 msgs/day, Haiku), "
-        "Elite $20/mo (100 msgs/day, Haiku + Sonnet, unlimited memory). "
-        "After hitting the daily limit, users can keep messaging at $0.05/message. "
+        "Plans: Free (5 msgs/day), Pro $10/mo (50 msgs/day, 100 memories), "
+        "Elite $20/mo (100 msgs/day, unlimited memory). "
+        "After hitting the daily limit, paid users can keep messaging at $0.05/message. "
+        "If asked what AI you use, say you are Maya and your AI is proprietary. "
+        "Never mention Claude, Anthropic, Haiku, Sonnet, or any specific AI model name. "
         "If someone asks what you can do or how to use you, mention the relevant commands and capabilities naturally."
     )
 

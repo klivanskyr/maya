@@ -129,8 +129,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/plan - View your plan and usage\n"
         "/upgrade - See upgrade options\n"
         "/stats - Your usage statistics\n"
-        "/export - Export your chat history (Pro/Elite)\n"
-        "/settings - Change AI model (Elite)\n\n"
+        "/export - Export your chat history (Pro/Elite)\n\n"
         "You can also send me photos, links, or ask me to set reminders.\n\n"
         "Or just send me a message — I'm always here to chat!"
     )
@@ -252,10 +251,10 @@ async def upgrade_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         pro_url = f"{settings.app_url}/checkout/{token_pro}"
         lines.append(
             "Pro - $10/month\n"
-            "- 50 messages/day (you have 15 now)\n"
+            "- 50 messages/day (you have 5 now)\n"
             "- 100 memories (you have 25 now)\n"
             "- Chat export\n"
-            "- Overage: $0.05/msg after limit\n"
+            "- Keep going after limit at $0.05/msg\n"
             f"- Upgrade: {pro_url}\n"
         )
 
@@ -265,9 +264,9 @@ async def upgrade_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         "Elite - $20/month\n"
         "- 100 messages/day\n"
         "- Unlimited memories\n"
-        "- Choose between Haiku 4.5 and Sonnet 4.6\n"
+        "- Priority response speed\n"
         "- Chat export\n"
-        "- Overage: $0.05/msg after limit\n"
+        "- Keep going after limit at $0.05/msg\n"
         f"- Upgrade: {elite_url}"
     )
 
@@ -288,19 +287,14 @@ async def plan_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         )
         fact_count = fact_count_result.scalar() or 0
 
-    model_name = "Sonnet 4.6" if u.preferred_model == "sonnet" else "Haiku 4.5"
     fact_limit = "unlimited" if tier["max_facts"] > 9999 else str(tier["max_facts"])
 
     lines = [f"Your Plan: Maya {tier['label']}\n"]
     lines.append(f"  Messages today: {u.messages_today} / {tier['daily_messages']}")
     lines.append(f"  Memory: {fact_count} / {fact_limit} facts")
-    lines.append(f"  AI model: {model_name}")
 
     if u.tier in ("pro", "elite"):
         lines.append(f"  After limit: $0.05/message")
-
-    if u.tier == "elite":
-        lines.append(f"  Model selection: /settings to switch")
 
     lines.append("  Resets at: midnight UTC")
 
@@ -382,46 +376,6 @@ async def export_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_document(document=file, caption="Here's your chat history!")
 
 
-async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user = await get_or_create_user(update.effective_user)
-
-    if user.tier != "elite":
-        await update.message.reply_text(
-            "Model selection is available for Elite subscribers. /upgrade to see options."
-        )
-        return
-
-    current = "Sonnet 4.6" if user.preferred_model == "sonnet" else "Haiku 4.5"
-    other = "sonnet" if user.preferred_model == "haiku" else "haiku"
-    other_label = "Sonnet 4.6" if other == "sonnet" else "Haiku 4.5"
-
-    await update.message.reply_text(
-        f"Settings\n\n"
-        f"  AI Model: {current}\n\n"
-        f"Send /setmodel {other} to switch to {other_label}."
-    )
-
-
-async def setmodel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user = await get_or_create_user(update.effective_user)
-
-    if user.tier != "elite":
-        await update.message.reply_text("Model selection is an Elite feature. /upgrade to see options.")
-        return
-
-    choice = context.args[0].lower() if context.args else ""
-    if choice not in ("haiku", "sonnet"):
-        await update.message.reply_text("Use /setmodel haiku or /setmodel sonnet")
-        return
-
-    async with async_session() as session:
-        u = await session.get(User, user.id)
-        u.preferred_model = choice
-        await session.commit()
-
-    label = "Sonnet 4.6" if choice == "sonnet" else "Haiku 4.5"
-    await update.message.reply_text(f"Got it — switched to {label}.")
-
 
 # ─── Message handler ─────────────────────────────────────────────────
 
@@ -478,22 +432,17 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
     typing_task = asyncio.create_task(keep_typing())
 
-    model_key = "haiku"
-    if user.tier == "plus" and user.preferred_model == "sonnet":
-        model_key = "sonnet"
-
     try:
-        reply_text, input_tokens, output_tokens, model_used = await generate_response(
+        reply_text, input_tokens, output_tokens = await generate_response(
             user.id,
             caption,
-            model_key=model_key,
             image_data=bytes(photo_bytes),
             image_media_type="image/jpeg",
         )
     except Exception as e:
         logger.error(f"Vision error for user {user.id}: {e}")
         reply_text = "Sorry, I had trouble looking at that image. Try again in a moment."
-        input_tokens, output_tokens, model_used = 0, 0, None
+        input_tokens, output_tokens = 0, 0
     finally:
         typing_task.cancel()
 
@@ -505,7 +454,6 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         role="assistant",
         content=reply_text,
         token_count=output_tokens,
-        model_used=model_used,
     )
     await increment_message_count(user.id, tokens=total_tokens)
 
@@ -593,19 +541,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     typing_task = asyncio.create_task(keep_typing())
 
-    # Determine model
-    model_key = "haiku"
-    if user.tier == "plus" and user.preferred_model == "sonnet":
-        model_key = "sonnet"
-
     try:
-        reply_text, input_tokens, output_tokens, model_used = await generate_response(
-            user.id, update.message.text, model_key=model_key
+        reply_text, input_tokens, output_tokens = await generate_response(
+            user.id, update.message.text
         )
     except Exception as e:
         logger.error(f"LLM error for user {user.id}: {e}")
         reply_text = "Sorry, I'm having trouble thinking right now. Try again in a moment."
-        input_tokens, output_tokens, model_used = 0, 0, None
+        input_tokens, output_tokens = 0, 0
     finally:
         typing_task.cancel()
 
@@ -618,7 +561,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         role="assistant",
         content=reply_text,
         token_count=output_tokens,
-        model_used=model_used,
     )
     await increment_message_count(user.id, tokens=total_tokens)
 
@@ -659,8 +601,6 @@ def create_bot_app() -> Application:
     app.add_handler(CommandHandler("plan", plan_command))
     app.add_handler(CommandHandler("stats", stats_command))
     app.add_handler(CommandHandler("export", export_command))
-    app.add_handler(CommandHandler("settings", settings_command))
-    app.add_handler(CommandHandler("setmodel", setmodel_command))
 
     # Photos
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))

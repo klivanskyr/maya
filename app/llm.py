@@ -10,11 +10,8 @@ from app.models import KeyFact, Message, Summary, User
 
 logger = logging.getLogger(__name__)
 
-# Model mapping
-MODELS = {
-    "haiku": "claude-haiku-4-5-20251001",
-    "sonnet": "claude-sonnet-4-6-20260414",
-}
+# Single model — branded as proprietary to users
+MODEL = "claude-haiku-4-5-20251001"
 
 client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
 
@@ -105,12 +102,11 @@ async def assemble_context(user_id: int) -> tuple[str, list[dict]]:
 async def generate_response(
     user_id: int,
     user_message: str,
-    model_key: str = "haiku",
     image_data: bytes | None = None,
     image_media_type: str | None = None,
-) -> tuple[str, int, int, str]:
+) -> tuple[str, int, int]:
     """Generate a response from Claude API with tool use support.
-    Returns (response_text, input_tokens, output_tokens, model_used).
+    Returns (response_text, input_tokens, output_tokens).
     Optionally accepts image_data (bytes) for vision queries."""
     from app.tools import TOOL_DEFINITIONS, execute_tool, set_current_user
 
@@ -142,8 +138,6 @@ async def generate_response(
     # Ensure messages alternate properly (Claude requires this)
     messages = _fix_message_order(messages)
 
-    model = MODELS.get(model_key, MODELS["haiku"])
-
     total_input_tokens = 0
     total_output_tokens = 0
 
@@ -151,7 +145,7 @@ async def generate_response(
     max_tool_rounds = 3
     for _ in range(max_tool_rounds):
         response = await client.messages.create(
-            model=model,
+            model=MODEL,
             max_tokens=1024,
             system=system_prompt,
             messages=messages,
@@ -196,7 +190,7 @@ async def generate_response(
         if hasattr(block, "text"):
             response_text += block.text
 
-    return response_text, total_input_tokens, total_output_tokens, model_key
+    return response_text, total_input_tokens, total_output_tokens
 
 
 def _fix_message_order(messages: list[dict]) -> list[dict]:
@@ -256,7 +250,7 @@ async def compact_history(user_id: int) -> None:
         # Summarize via Claude
         try:
             summary_response = await client.messages.create(
-                model=MODELS["haiku"],
+                model=MODEL,
                 max_tokens=512,
                 system=(
                     "You are a summarization assistant. Summarize the following conversation, "
@@ -304,7 +298,7 @@ async def extract_key_facts(user_id: int, conversation_text: str) -> None:
     """Extract structured key facts from conversation text via Claude."""
     try:
         result = await client.messages.create(
-            model=MODELS["haiku"],
+            model=MODEL,
             max_tokens=512,
             system=(
                 "Extract key facts about the user from this conversation. "
