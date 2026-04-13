@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Conversation — MayaAI Admin{% endblock %}
+{% block content %}
+<h1>Conversation — {{ conversation.started_at.strftime('%Y-%m-%d %H:%M') }}</h1>
+<p>
+    <a href="/admin/users/{{ user.id }}">← Back to {{ user.first_name or user.username or user.telegram_id }}</a>
+</p>
+
+<div class="chat-thread">
+    {% for msg in messages %}
+    <div class="chat-message chat-{{ msg.role }}">
+        <div class="chat-role">{{ msg.role }}</div>
+        <div class="chat-content">{{ msg.content }}</div>
+        <div class="chat-time">{{ msg.created_at.strftime('%H:%M:%S') }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

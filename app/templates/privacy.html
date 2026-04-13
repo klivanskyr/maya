@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy — Maya{% endblock %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto px-6 py-16">
+    <h1 class="text-4xl font-extrabold mb-8">Privacy Policy</h1>
+    <p class="text-muted mb-8">Last updated: April 2026</p>
+
+    <div class="prose prose-lg text-charcoal space-y-6">
+        <h2 class="text-2xl font-bold mt-8">What we collect</h2>
+        <p class="text-muted">When you use Maya on Telegram, we collect:</p>
+        <ul class="text-muted space-y-2 list-disc pl-6">
+            <li><strong>Telegram user ID and username</strong> — to identify your account.</li>
+            <li><strong>Messages you send to Maya</strong> — to generate responses and build your memory profile.</li>
+            <li><strong>Key facts</strong> — details Maya extracts from conversations (your name, preferences, etc.). You can view these with /memory and delete them with /forget.</li>
+            <li><strong>Payment information</strong> — processed by Stripe. We never see or store your credit card number.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold mt-8">How we use your data</h2>
+        <ul class="text-muted space-y-2 list-disc pl-6">
+            <li>To provide Maya's conversational AI service.</li>
+            <li>To remember things about you and personalize responses.</li>
+            <li>To process payments via Stripe.</li>
+            <li>To improve the service (aggregate, anonymized usage statistics only).</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold mt-8">What we don't do</h2>
+        <ul class="text-muted space-y-2 list-disc pl-6">
+            <li>We do <strong>not</strong> sell your data to third parties.</li>
+            <li>We do <strong>not</strong> use your messages to train AI models.</li>
+            <li>We do <strong>not</strong> share your conversations or memories with anyone.</li>
+            <li>We do <strong>not</strong> show you ads.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold mt-8">Your control</h2>
+        <ul class="text-muted space-y-2 list-disc pl-6">
+            <li>Use <strong>/memory</strong> to see everything Maya knows about you.</li>
+            <li>Use <strong>/forget [fact]</strong> to delete any memory.</li>
+            <li>Use <strong>/export</strong> to download your conversation history (Plus).</li>
+            <li>To delete your account entirely, message us and we will remove all your data.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold mt-8">Data storage</h2>
+        <p class="text-muted">Your data is stored in a PostgreSQL database hosted on Railway. Connections are encrypted in transit. We use Stripe for payment processing — see <a href="https://stripe.com/privacy" class="text-teal underline">Stripe's privacy policy</a>.</p>
+
+        <h2 class="text-2xl font-bold mt-8">Contact</h2>
+        <p class="text-muted">Questions about privacy? Message Maya and ask, or contact us at privacy@getmaya.ai.</p>
+    </div>
+</section>
+{% endblock %}

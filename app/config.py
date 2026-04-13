@@ -1,0 +1,47 @@
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+
+    # Telegram
+    telegram_bot_token: str
+
+    # Anthropic Claude API
+    anthropic_api_key: str = ""
+
+    # Stripe
+    stripe_secret_key: str = ""
+    stripe_publishable_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_id_plus: str = ""
+
+    # Database
+    database_url: str = "sqlite+aiosqlite:///./maya.db"
+
+    # Maya persona
+    maya_system_prompt: str = (
+        "You are Maya, a friendly AI assistant that people text on Telegram. "
+        "You talk like a smart friend — concise, warm, casual. Use contractions. "
+        "No corporate speak. No \"Great question!\" or \"I'd be happy to help!\" openers. "
+        "You remember details about the person you're talking to and use that context naturally. "
+        "Keep responses short — this is texting, not email."
+    )
+
+    # Quotas (message-based)
+    default_daily_messages: int = 15
+
+    # Context
+    max_context_tokens: int = 8192
+    compaction_threshold: float = 0.75
+    conversation_timeout_minutes: int = 30
+
+    # Admin
+    admin_api_key: str = "maya-admin-secret-change-me"
+
+    # App
+    app_url: str = "http://localhost:8000"
+    environment: str = "development"
+
+
+settings = Settings()

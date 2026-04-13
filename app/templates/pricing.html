@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing — Maya{% endblock %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto px-6 pt-16 pb-12 text-center">
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Simple, honest pricing</h1>
+    <p class="text-muted text-xl">Start free. Upgrade when Maya becomes essential.</p>
+</section>
+
+<section class="max-w-4xl mx-auto px-6 pb-24">
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Free -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-muted/10">
+            <h3 class="text-xl font-bold mb-1">Free</h3>
+            <div class="text-4xl font-extrabold mb-2">$0</div>
+            <p class="text-muted mb-8">Try Maya with no commitment.</p>
+            <ul class="space-y-4 text-charcoal mb-8">
+                <li class="flex items-start gap-3">
+                    <span class="text-teal mt-0.5">&#10003;</span>
+                    <div><strong>15 messages per day</strong><br><span class="text-muted text-sm">Resets at midnight UTC</span></div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-teal mt-0.5">&#10003;</span>
+                    <div><strong>25 memories</strong><br><span class="text-muted text-sm">Maya learns and remembers key facts about you</span></div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-teal mt-0.5">&#10003;</span>
+                    <div><strong>Haiku 4.5 AI</strong><br><span class="text-muted text-sm">Fast, capable, great for everyday questions</span></div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-teal mt-0.5">&#10003;</span>
+                    <div><strong>View & delete memories</strong><br><span class="text-muted text-sm">Full control over your data</span></div>
+                </li>
+            </ul>
+            <a href="https://t.me/MayaAIBot"
+               class="block text-center py-3 rounded-full border-2 border-charcoal font-semibold hover:bg-charcoal hover:text-white transition">
+                Start Free
+            </a>
+        </div>
+
+        <!-- Plus -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm border-2 border-coral relative">
+            <div class="absolute -top-3 left-8 bg-coral text-white text-xs font-bold px-3 py-1 rounded-full">BEST VALUE</div>
+            <h3 class="text-xl font-bold mb-1">Maya Plus</h3>
+            <div class="text-4xl font-extrabold mb-2">$9<span class="text-lg font-normal text-muted">/mo</span></div>
+            <p class="text-muted mb-8">For people who text Maya every day.</p>
+            <ul class="space-y-4 text-charcoal mb-8">
+                <li class="flex items-start gap-3">
+                    <span class="text-coral mt-0.5">&#10003;</span>
+                    <div><strong>Unlimited messages</strong><br><span class="text-muted text-sm">No daily limit, text as much as you want</span></div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-coral mt-0.5">&#10003;</span>
+                    <div><strong>Unlimited memories</strong><br><span class="text-muted text-sm">Maya never has to forget</span></div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-coral mt-0.5">&#10003;</span>
+                    <div><strong>Sonnet 4.6 AI</strong><br><span class="text-muted text-sm">More capable model for complex questions</span></div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-coral mt-0.5">&#10003;</span>
+                    <div><strong>Chat export + model selection</strong><br><span class="text-muted text-sm">Download your history, choose your AI model</span></div>
+                </li>
+            </ul>
+            <a href="https://t.me/MayaAIBot"
+               class="block text-center py-3 rounded-full bg-coral text-white font-semibold hover:bg-coral-dark transition">
+                Start Free, Upgrade in Chat
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-16 max-w-2xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8 text-center">Billing FAQ</h2>
+        <div class="space-y-6">
+            <div>
+                <h3 class="font-bold mb-1">How do I pay?</h3>
+                <p class="text-muted">Type /upgrade in your chat with Maya. She'll send a secure Stripe payment link. We accept all major credit cards.</p>
+            </div>
+            <div>
+                <h3 class="font-bold mb-1">Can I cancel anytime?</h3>
+                <p class="text-muted">Yes. No contracts, no cancellation fees. Your Plus features stay active until the end of your billing period.</p>
+            </div>
+            <div>
+                <h3 class="font-bold mb-1">What happens if I downgrade?</h3>
+                <p class="text-muted">Your memories and chat history are never deleted. You'll just go back to 15 messages/day and 25 memories.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

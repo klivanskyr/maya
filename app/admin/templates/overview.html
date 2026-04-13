@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Overview — MayaAI Admin{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ messages_today }}</div>
+        <div class="stat-label">Messages Today</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ active_conversations }}</div>
+        <div class="stat-label">Active Conversations</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "{:,}".format(tokens_today) }}</div>
+        <div class="stat-label">Tokens Used Today</div>
+    </div>
+</div>
+
+<h2>Recent Messages</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Role</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for msg in recent_messages %}
+        <tr>
+            <td>{{ msg.created_at.strftime('%H:%M:%S') }}</td>
+            <td>
+                <a href="/admin/users/{{ msg.user_id }}">
+                    {{ msg.username or msg.telegram_id }}
+                </a>
+            </td>
+            <td class="role-{{ msg.role }}">{{ msg.role }}</td>
+            <td>{{ msg.content[:100] }}{% if msg.content|length > 100 %}...{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

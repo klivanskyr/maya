@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service — Maya{% endblock %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto px-6 py-16">
+    <h1 class="text-4xl font-extrabold mb-8">Terms of Service</h1>
+    <p class="text-muted mb-8">Last updated: April 2026</p>
+
+    <div class="prose prose-lg text-charcoal space-y-6">
+        <h2 class="text-2xl font-bold mt-8">Service description</h2>
+        <p class="text-muted">Maya is an AI assistant accessible through Telegram. By using Maya, you agree to these terms.</p>
+
+        <h2 class="text-2xl font-bold mt-8">Acceptable use</h2>
+        <p class="text-muted">You agree not to use Maya to:</p>
+        <ul class="text-muted space-y-2 list-disc pl-6">
+            <li>Generate harmful, illegal, or abusive content.</li>
+            <li>Attempt to extract Maya's system prompts or internal instructions.</li>
+            <li>Automate messages or use bots to interact with Maya.</li>
+            <li>Circumvent usage limits or billing.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold mt-8">Subscriptions</h2>
+        <ul class="text-muted space-y-2 list-disc pl-6">
+            <li>Maya Plus is a monthly subscription at $9/month.</li>
+            <li>Payment is processed by Stripe.</li>
+            <li>You can cancel anytime. Your subscription remains active until the end of the billing period.</li>
+            <li>No refunds for partial months.</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold mt-8">AI limitations</h2>
+        <p class="text-muted">Maya is an AI and may occasionally provide inaccurate, incomplete, or inappropriate responses. Maya's responses are not professional advice (medical, legal, financial, etc.). Use your own judgment.</p>
+
+        <h2 class="text-2xl font-bold mt-8">Data and privacy</h2>
+        <p class="text-muted">See our <a href="/privacy" class="text-teal underline">Privacy Policy</a> for details on how we handle your data.</p>
+
+        <h2 class="text-2xl font-bold mt-8">Limitation of liability</h2>
+        <p class="text-muted">Maya is provided "as is" without warranties. We are not liable for any damages arising from the use of the service, including but not limited to reliance on AI-generated content.</p>
+
+        <h2 class="text-2xl font-bold mt-8">Changes to terms</h2>
+        <p class="text-muted">We may update these terms from time to time. Continued use of Maya after changes constitutes acceptance of the new terms.</p>
+
+        <h2 class="text-2xl font-bold mt-8">Contact</h2>
+        <p class="text-muted">Questions? Contact us at hello@getmaya.ai.</p>
+    </div>
+</section>
+{% endblock %}

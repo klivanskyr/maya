@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Users — MayaAI Admin{% endblock %}
+{% block content %}
+<h1>Users</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Messages</th>
+            <th>Tokens Used</th>
+            <th>Quota</th>
+            <th>Last Active</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td><a href="/admin/users/{{ user.id }}">{{ user.username or user.telegram_id }}</a></td>
+            <td>{{ user.first_name or "—" }}</td>
+            <td>{{ user.message_count }}</td>
+            <td>{{ "{:,}".format(user.tokens_used) }}</td>
+            <td>
+                <div class="quota-bar">
+                    <div class="quota-fill" style="width: {{ [user.quota_pct, 100] | min }}%"></div>
+                </div>
+                {{ user.quota_pct }}%
+            </td>
+            <td>{{ user.last_active.strftime('%Y-%m-%d %H:%M') if user.last_active else "—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

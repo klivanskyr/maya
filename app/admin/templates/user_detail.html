@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ user.first_name or user.username or user.telegram_id }} — MayaAI Admin{% endblock %}
+{% block content %}
+<h1>{{ user.first_name or user.username or user.telegram_id }}</h1>
+<div class="user-meta">
+    <span>Telegram ID: {{ user.telegram_id }}</span>
+    <span>Username: {{ user.username or "—" }}</span>
+    <span>Joined: {{ user.created_at.strftime('%Y-%m-%d') }}</span>
+    <span>Tokens: {{ "{:,}".format(user.tokens_used) }} / {{ "{:,}".format(user.token_quota) }}</span>
+</div>
+
+{% if key_facts %}
+<h2>Key Facts</h2>
+<table>
+    <thead>
+        <tr><th>Category</th><th>Key</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+        {% for fact in key_facts %}
+        <tr>
+            <td><span class="badge">{{ fact.category }}</span></td>
+            <td>{{ fact.key }}</td>
+            <td>{{ fact.value }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if summary %}
+<h2>Conversation Summary</h2>
+<div class="summary-box">{{ summary.content }}</div>
+{% endif %}
+
+<h2>Conversations</h2>
+{% for conv in conversations %}
+<div class="conversation-card">
+    <div class="conv-header">
+        <a href="/admin/conversations/{{ conv.id }}">
+            {{ conv.started_at.strftime('%Y-%m-%d %H:%M') }}
+        </a>
+        <span>{{ conv.message_count }} messages</span>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

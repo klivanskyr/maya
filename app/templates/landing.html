@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero -->
+<section class="max-w-5xl mx-auto px-6 pt-16 pb-24 text-center">
+    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6">
+        The AI that actually<br>
+        <span class="text-coral">knows you.</span>
+    </h1>
+    <p class="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
+        Maya is the smartest friend in your Telegram contacts. No app to download. No account to create. Just text her.
+    </p>
+    <a href="https://t.me/MayaAIBot"
+       class="inline-block bg-coral text-white text-lg px-8 py-4 rounded-full font-semibold hover:bg-coral-dark transition shadow-lg shadow-coral/25">
+        Text Maya on Telegram &rarr;
+    </a>
+    <p class="text-muted text-sm mt-4">Free to start. No credit card required.</p>
+</section>
+
+{% if upgraded %}
+<section class="max-w-2xl mx-auto px-6 pb-12">
+    <div class="bg-teal/10 border border-teal/30 rounded-2xl p-6 text-center">
+        <p class="text-teal font-semibold text-lg">Welcome to Maya Plus! 🎉</p>
+        <p class="text-muted mt-1">Head back to Telegram — Maya is ready with unlimited everything.</p>
+    </div>
+</section>
+{% endif %}
+
+<!-- Features -->
+<section class="max-w-5xl mx-auto px-6 pb-24">
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Feature 1 -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm">
+            <div class="w-12 h-12 bg-coral/10 rounded-xl flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 text-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Just text</h3>
+            <p class="text-muted leading-relaxed">
+                You already know how to use Maya. Open Telegram. Send a message. That's it. No new apps, no tutorials, no learning curve. If you can text, you can use Maya.
+            </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm">
+            <div class="w-12 h-12 bg-teal/10 rounded-xl flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">She actually remembers</h3>
+            <p class="text-muted leading-relaxed">
+                Tell Maya your name once. She'll never ask again. Mention you're vegetarian, she remembers when suggesting recipes. Maya gets better the more you talk to her.
+            </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm">
+            <div class="w-12 h-12 bg-coral/10 rounded-xl flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 text-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Smart, not robotic</h3>
+            <p class="text-muted leading-relaxed">
+                Maya is powered by the same AI behind Claude. She writes like a real person, not a corporate chatbot. Concise because she texts, not emails. Personality because nobody wants to talk to a machine.
+            </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm">
+            <div class="w-12 h-12 bg-teal/10 rounded-xl flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Privacy first</h3>
+            <p class="text-muted leading-relaxed">
+                Your conversations are yours. Maya doesn't sell your data, train on your messages, or share your information. See exactly what she remembers and delete anything, anytime.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing -->
+<section class="max-w-5xl mx-auto px-6 pb-24" id="pricing">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Simple pricing</h2>
+    <p class="text-muted text-center text-lg mb-12">Start free. Upgrade when you're ready.</p>
+
+    <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <!-- Free -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-muted/10">
+            <h3 class="text-lg font-bold mb-1">Free</h3>
+            <div class="text-3xl font-extrabold mb-6">$0<span class="text-base font-normal text-muted">/month</span></div>
+            <ul class="space-y-3 text-muted mb-8">
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> 15 messages per day
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> 25 memories
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> Haiku 4.5 AI model
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal mt-0.5">&#10003;</span> View & delete memories
+                </li>
+            </ul>
+            <a href="https://t.me/MayaAIBot"
+               class="block text-center py-3 rounded-full border-2 border-charcoal text-charcoal font-semibold hover:bg-charcoal hover:text-white transition">
+                Start Free
+            </a>
+        </div>
+
+        <!-- Plus -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm border-2 border-coral relative">
+            <div class="absolute -top-3 left-8 bg-coral text-white text-xs font-bold px-3 py-1 rounded-full">POPULAR</div>
+            <h3 class="text-lg font-bold mb-1">Maya Plus</h3>
+            <div class="text-3xl font-extrabold mb-6">$9<span class="text-base font-normal text-muted">/month</span></div>
+            <ul class="space-y-3 text-muted mb-8">
+                <li class="flex items-start gap-2">
+                    <span class="text-coral mt-0.5">&#10003;</span> <strong class="text-charcoal">Unlimited</strong> messages
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-coral mt-0.5">&#10003;</span> <strong class="text-charcoal">Unlimited</strong> memories
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-coral mt-0.5">&#10003;</span> Haiku 4.5 + <strong class="text-charcoal">Sonnet 4.6</strong>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-coral mt-0.5">&#10003;</span> Full memory management + export
+                </li>
+            </ul>
+            <a href="https://t.me/MayaAIBot"
+               class="block text-center py-3 rounded-full bg-coral text-white font-semibold hover:bg-coral-dark transition">
+                Start Free, Upgrade in Chat
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="max-w-3xl mx-auto px-6 pb-24">
+    <h2 class="text-3xl font-bold text-center mb-12">Questions</h2>
+    <div class="space-y-8">
+        <div>
+            <h3 class="font-bold text-lg mb-2">Do I need to create an account?</h3>
+            <p class="text-muted">No. When you message Maya on Telegram, your account is created automatically. No email, no password, no signup form.</p>
+        </div>
+        <div>
+            <h3 class="font-bold text-lg mb-2">What can Maya help with?</h3>
+            <p class="text-muted">Anything you'd text a smart friend about. Meal ideas, writing help, travel planning, homework, brainstorming, life advice, explaining confusing things, drafting messages, and more.</p>
+        </div>
+        <div>
+            <h3 class="font-bold text-lg mb-2">How does Maya remember things?</h3>
+            <p class="text-muted">Maya automatically picks up on important details from your conversations — your name, preferences, job, interests. You can see exactly what she remembers with the /memory command.</p>
+        </div>
+        <div>
+            <h3 class="font-bold text-lg mb-2">Is my data private?</h3>
+            <p class="text-muted">Yes. Your conversations and memories are stored securely and never shared with third parties. You can view and delete your data at any time.</p>
+        </div>
+        <div>
+            <h3 class="font-bold text-lg mb-2">How do I upgrade?</h3>
+            <p class="text-muted">Type /upgrade in your chat with Maya. She'll send you a secure payment link. Cancel anytime.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="max-w-5xl mx-auto px-6 pb-24 text-center">
+    <div class="bg-charcoal rounded-3xl p-12 md:p-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Just text Maya.</h2>
+        <p class="text-white/60 text-lg mb-8">Open Telegram. Find Maya. Start talking. It's that simple.</p>
+        <a href="https://t.me/MayaAIBot"
+           class="inline-block bg-coral text-white text-lg px-8 py-4 rounded-full font-semibold hover:bg-coral-dark transition">
+            Text Maya on Telegram &rarr;
+        </a>
+    </div>
+</section>
+{% endblock %}
