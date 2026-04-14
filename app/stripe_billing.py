@@ -122,7 +122,8 @@ async def handle_stripe_webhook(payload: bytes, sig_header: str) -> bool:
         return False
 
     event_type = event["type"]
-    data = event["data"]["object"]
+    # Convert StripeObject to plain dict — v15 StripeObjects don't support .get()
+    data = event["data"]["object"].to_dict()
 
     try:
         if event_type == "checkout.session.completed":
@@ -158,7 +159,8 @@ async def _handle_checkout_completed(session_data: dict) -> None:
 
     # Get subscription details from Stripe
     try:
-        sub = await asyncio.to_thread(stripe.Subscription.retrieve, subscription_id)
+        sub_obj = await asyncio.to_thread(stripe.Subscription.retrieve, subscription_id)
+        sub = sub_obj.to_dict()
     except stripe.error.StripeError as e:
         logger.error(f"Failed to retrieve subscription {subscription_id}: {e}")
         async with async_session() as db:
@@ -237,7 +239,8 @@ async def _handle_invoice_paid(invoice: dict) -> None:
 
             user = await db.get(User, sub.user_id)
             if user:
-                user.tier = "plus"
+                # Keep current tier (pro or elite), don't overwrite
+                pass
 
             await db.commit()
 
@@ -289,8 +292,8 @@ async def _handle_subscription_deleted(subscription: dict) -> None:
             if user:
                 await _send_telegram_message(
                     user.id,
-                    "Your Maya Plus subscription has ended. You're now on the Free plan "
-                    "(15 messages/day, 25 memories). You can /upgrade anytime to come back.",
+                    "Your Maya subscription has ended. You're now on the Free plan "
+                    "(5 messages/day, 25 memories). You can /upgrade anytime to come back.",
                 )
 
     logger.info(f"Subscription {subscription_id} canceled")
@@ -316,7 +319,7 @@ async def _handle_payment_failed(invoice: dict) -> None:
 
             await _send_telegram_message(
                 sub.user_id,
-                "Heads up — your Maya Plus payment failed. I'll try again in a few days. "
+                "Heads up — your Maya payment failed. I'll try again in a few days. "
                 "If it fails again, your plan will switch back to Free.",
             )
 
