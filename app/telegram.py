@@ -16,7 +16,7 @@ from telegram.ext import (
 
 from app.config import settings
 from app.database import async_session
-from app.llm import compact_history, estimate_tokens, generate_response
+from app.llm import compact_history, estimate_tokens, generate_fortune, generate_response, generate_roast
 from app.models import Conversation, KeyFact, Message, User
 from app.quota import check_message_quota, increment_message_count
 
@@ -129,7 +129,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/plan - View your plan and usage\n"
         "/upgrade - See upgrade options\n"
         "/stats - Your usage statistics\n"
-        "/export - Export your chat history (Pro/Elite)\n\n"
+        "/export - Export your chat history (Pro/Elite)\n"
+        "/roast - I'll roast you based on what I know\n"
+        "/fortune - Get your personalized fortune\n\n"
         "You can also send me photos, links, or ask me to set reminders.\n\n"
         "Or just send me a message — I'm always here to chat!"
     )
@@ -341,6 +343,32 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         f"  Messages today: {u.messages_today}\n"
         f"  Current plan: {u.tier.title()}"
     )
+
+
+async def roast_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = await get_or_create_user(update.effective_user)
+
+    if not user.onboarding_complete:
+        await update.message.reply_text("I need to know you before I can roast you. What's your name?")
+        _onboarding_users.add(user.telegram_id)
+        return
+
+    await update.message.chat.send_action(ChatAction.TYPING)
+    roast = await generate_roast(user.id)
+    await update.message.reply_text(roast)
+
+
+async def fortune_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = await get_or_create_user(update.effective_user)
+
+    if not user.onboarding_complete:
+        await update.message.reply_text("The stars can't find you yet. What's your name?")
+        _onboarding_users.add(user.telegram_id)
+        return
+
+    await update.message.chat.send_action(ChatAction.TYPING)
+    fortune = await generate_fortune(user.id)
+    await update.message.reply_text(fortune)
 
 
 async def export_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -601,6 +629,8 @@ def create_bot_app() -> Application:
     app.add_handler(CommandHandler("plan", plan_command))
     app.add_handler(CommandHandler("stats", stats_command))
     app.add_handler(CommandHandler("export", export_command))
+    app.add_handler(CommandHandler("roast", roast_command))
+    app.add_handler(CommandHandler("fortune", fortune_command))
 
     # Photos
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))

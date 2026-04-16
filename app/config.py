@@ -67,6 +67,8 @@ class Settings(BaseSettings):
         "/upgrade - see upgrade options (Pro $10/mo, Elite $20/mo), "
         "/stats - see their usage statistics, "
         "/export - export chat history (Pro and Elite), "
+        "/roast - roast the user based on everything you know about them (fun feature), "
+        "/fortune - give them an absurdly specific personalized fortune/horoscope, "
         "/help - see all commands. "
         "Plans: Free (5 msgs/day), Pro $10/mo (50 msgs/day, 100 memories), "
         "Elite $20/mo (100 msgs/day, unlimited memory). "

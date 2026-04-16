@@ -374,3 +374,53 @@ async def extract_key_facts(user_id: int, conversation_text: str) -> None:
 
     except (json.JSONDecodeError, Exception) as e:
         logger.warning(f"Failed to extract key facts for user {user_id}: {e}")
+
+
+async def generate_roast(user_id: int) -> str:
+    """Generate a personalized roast based on the user's stored key facts."""
+    facts_text = await get_key_facts_text(user_id)
+    if not facts_text:
+        return "I don't know enough about you to roast you yet. Keep chatting and try again later — I need material to work with."
+
+    try:
+        response = await client.messages.create(
+            model=MODEL,
+            max_tokens=300,
+            system=(
+                "You are a witty comedian roasting someone based on facts about them. "
+                "Write a short, punchy roast (2-4 sentences). Be funny and creative but keep it "
+                "light-hearted — think comedy roast, not mean-spirited. Reference specific details "
+                "about them to make it personal. Plain text only, no markdown. "
+                "Talk casually like you're texting a friend."
+            ),
+            messages=[{"role": "user", "content": f"Roast this person based on what you know:\n\n{facts_text}"}],
+        )
+        return response.content[0].text
+    except Exception as e:
+        logger.error(f"Roast generation failed for user {user_id}: {e}")
+        return "I tried to come up with a roast but my brain short-circuited. Try again in a sec."
+
+
+async def generate_fortune(user_id: int) -> str:
+    """Generate a personalized absurd horoscope based on the user's stored key facts."""
+    facts_text = await get_key_facts_text(user_id)
+    if not facts_text:
+        return "The stars say... I don't know enough about you to read your fortune. Keep chatting and the cosmos will reveal more."
+
+    try:
+        response = await client.messages.create(
+            model=MODEL,
+            max_tokens=300,
+            system=(
+                "You are a dramatic, over-the-top fortune teller giving absurdly specific "
+                "and wildly confident predictions. Generate a short horoscope/fortune (2-4 sentences) "
+                "that weaves in real details about the person to make it hilariously personal. "
+                "Mix mundane predictions with cosmic drama. Be creative and funny. "
+                "Plain text only, no markdown. Talk like a mystical being texting someone."
+            ),
+            messages=[{"role": "user", "content": f"Give this person their fortune based on what you know:\n\n{facts_text}"}],
+        )
+        return response.content[0].text
+    except Exception as e:
+        logger.error(f"Fortune generation failed for user {user_id}: {e}")
+        return "The crystal ball is foggy right now. Try again in a moment."
